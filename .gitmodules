@@ -1,0 +1,6 @@
+[submodule "EntityFrameworkMAUI"]
+	path = EntityFrameworkMAUI
+	url = git@github.com:igorbock/EntityFrameworkMAUI.git
+[submodule "BibliotecaMAUI"]
+	path = BibliotecaMAUI
+	url = git@github.com:igorbock/BibliotecaMAUI.git
