@@ -1,0 +1,10 @@
+﻿global using Microsoft.AspNetCore.Mvc;
+global using System.IO.Pipelines;
+global using System.Text;
+global using System.Text.Json;
+global using BibliotecaMAUI.Models;
+global using BibliotecaMAUI.Interfaces;
+global using API.Helpers;
+global using EntityFramework;
+global using Microsoft.EntityFrameworkCore;
+global using API.Extensions;
