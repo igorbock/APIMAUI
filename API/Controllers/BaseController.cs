@@ -9,7 +9,7 @@ public abstract class BaseController : Controller
         c_Modelo = p_modelo;
     }
 
-    public virtual async Task<IServico?> CM_DeserializaJsonObtemClasseERegistraSolicitacao(string p_json, Solicitacao p_solicitacao)
+    public virtual async Task<IEntidade?> CM_DeserializaJsonObtemClasseERegistraSolicitacao(string p_json, Solicitacao p_solicitacao)
     {
         try
         {
@@ -26,7 +26,7 @@ public abstract class BaseController : Controller
             c_Modelo.Solicitacoes.Add(p_solicitacao);
 
             var m_entidadeFactory = new EntidadeFactory();
-            IQueryable<IServico>? m_queryable = p_solicitacao.ds_entidade switch
+            IQueryable<IEntidade>? m_queryable = p_solicitacao.ds_entidade switch
             {
                 nameof(Produto) => c_Modelo.Produtos.AsNoTracking(),
                 nameof(Setor) => c_Modelo.Setores.AsNoTracking(),
@@ -43,7 +43,7 @@ public abstract class BaseController : Controller
             if(string.IsNullOrWhiteSpace(p_solicitacao.ds_parametros))
             {
                 var m_classeDaBase = c_Modelo.Find(m_entidade.GetType(), p_solicitacao.cd_codigo_interno);
-                return m_classeDaBase as IServico;
+                return m_classeDaBase as IEntidade;
             }
             return m_entidade;
         }

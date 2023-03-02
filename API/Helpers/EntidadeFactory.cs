@@ -2,12 +2,12 @@
 
 public class EntidadeFactory
 {
-    public IServico? CM_ObtemEntidade(Solicitacao? p_solicitacao, IQueryable<IServico> p_fonteDados)
+    public IEntidade? CM_ObtemEntidade(Solicitacao? p_solicitacao, IQueryable<IEntidade> p_fonteDados)
     {
         if (p_solicitacao == null)
             throw new ArgumentNullException();
 
-        IServico? m_classe;
+        IEntidade? m_classe;
         if(string.IsNullOrWhiteSpace(p_solicitacao.ds_parametros))
         {
             return p_solicitacao.ds_entidade switch
