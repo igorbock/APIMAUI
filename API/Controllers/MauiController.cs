@@ -7,97 +7,112 @@ public class MauiController : BaseController
 {
     private readonly Modelo c_Modelo;
 
-    public Solicitacao C_Solicitacao { get; set; }
-
     public MauiController(Modelo p_modelo) : base(p_modelo)
     {
         c_Modelo = p_modelo;
     }
 
     [HttpPost]
-    public override async Task<IActionResult> CM_Salvar(string? json)
+    public override IActionResult CM_Salvar(string? json)
     {
         try
         {
-            var m_classe = await CM_DeserializaJsonObtemClasseERegistraSolicitacao(json ?? string.Empty, C_Solicitacao);
+            var m_retorno = CM_DeserializaJsonObtemClasseERegistraSolicitacao(json, out Solicitacao p_solicitacao);
+            var m_entidade = m_retorno.Item2;
 #pragma warning disable CS8634
-            c_Modelo.Add(m_classe);
+            c_Modelo.Add(m_entidade);
 #pragma warning restore CS8634
 
-            C_Solicitacao.CMX_EncerrarSolicitacao($"A entidade da classe \"{m_classe?.GetType().Name}\" foi salva corretamente.");
+            p_solicitacao.CMX_EncerrarSolicitacao(MensagensSolicitacoes.C_CriarEntidade, p_solicitacao.ds_entidade, p_solicitacao.ds_parametros);
 
-            c_Modelo.SaveChanges();
-            return StatusCode(200, C_Solicitacao.ds_resolucao);
+            return StatusCode(200, p_solicitacao.ds_resolucao);
         }
         catch (Exception ex)
         {
-            c_Modelo.SaveChanges();
             return StatusCode(400, ex.Message);
+        }
+        finally
+        {
+            c_Modelo.SaveChanges();
         }
     }
 
     [HttpGet]
-    public override async Task<IActionResult> CM_Ler(string? json)
+    public override IActionResult CM_Ler(string? json)
     {
         try
         {
-            var m_classe = await CM_DeserializaJsonObtemClasseERegistraSolicitacao(json ?? string.Empty, C_Solicitacao)
-                ?? throw new NullReferenceException("Não foi possível ler a entidade.");
-            var m_json = JsonSerializer.SerializeToElement<object>(m_classe);
+            var m_retorno = CM_DeserializaJsonObtemClasseERegistraSolicitacao(json, out Solicitacao p_solicitacao);
+            var m_listaDaEntidade = m_retorno.Item1;
+            var m_options = new JsonSerializerOptions
+            {
+                Encoder = JavaScriptEncoder.Create(UnicodeRanges.All),
+                WriteIndented = true
+            };
 
-            C_Solicitacao.CMX_EncerrarSolicitacao(m_json.ToString());
+            var m_json = JsonSerializer.SerializeToElement<IQueryable<object?>>(m_listaDaEntidade, m_options);
 
-            c_Modelo.SaveChanges();
-            return StatusCode(200, C_Solicitacao.ds_resolucao);
+            p_solicitacao.CMX_EncerrarSolicitacao(m_json.ToString());
+
+            return StatusCode(200, p_solicitacao.ds_resolucao);
         }
         catch (Exception ex)
         {
-            c_Modelo.SaveChanges();
             return StatusCode(400, ex.Message);
+        }
+        finally
+        {
+            c_Modelo.SaveChanges();
         }
     }
 
     [HttpPut]
-    public override async Task<IActionResult> CM_Editar(string? json)
+    public override IActionResult CM_Editar(string? json)
     {
         try
         {
-            var m_classe = await CM_DeserializaJsonObtemClasseERegistraSolicitacao(json ?? string.Empty, C_Solicitacao);
+            var m_retorno = CM_DeserializaJsonObtemClasseERegistraSolicitacao(json, out Solicitacao p_solicitacao);
+            var m_entidade = m_retorno.Item2;
 #pragma warning disable CS8634
-            c_Modelo.Update(m_classe);
+            c_Modelo.Update(m_entidade);
 #pragma warning restore CS8634
 
-            C_Solicitacao.CMX_EncerrarSolicitacao($"A entidade da classe \"{m_classe?.GetType().Name}\" foi editada corretamente.");
+            p_solicitacao.CMX_EncerrarSolicitacao(MensagensSolicitacoes.C_EditarEntidade, p_solicitacao.ds_entidade, p_solicitacao.ds_parametros);
 
-            c_Modelo.SaveChanges();
-            return StatusCode(200, C_Solicitacao.ds_resolucao);
+            return StatusCode(200, p_solicitacao.ds_resolucao);
         }
         catch (Exception ex)
         {
-            c_Modelo.SaveChanges();
             return StatusCode(400, ex.Message);
+        }
+        finally
+        {
+            c_Modelo.SaveChanges();
         }
     }
 
     [HttpDelete]
-    public override async Task<IActionResult> CM_Deletar(string? json)
+    public override IActionResult CM_Deletar(string? json)
     {
         try
         {
-            var m_classe = await CM_DeserializaJsonObtemClasseERegistraSolicitacao(json ?? string.Empty, C_Solicitacao);
+            var m_retorno = CM_DeserializaJsonObtemClasseERegistraSolicitacao(json, out Solicitacao p_solicitacao);
+            var m_entidade = m_retorno.Item2;
 #pragma warning disable CS8634
-            c_Modelo.Remove(m_classe);
+            c_Modelo.Remove(m_entidade);
 #pragma warning restore CS8634
 
-            C_Solicitacao.CMX_EncerrarSolicitacao($"A entidade da classe \"{m_classe?.GetType().Name}\" foi removida corretamente.");
+            p_solicitacao.CMX_EncerrarSolicitacao(string.Format(MensagensSolicitacoes.C_RemoverEntidade, p_solicitacao.ds_entidade));
 
-            c_Modelo.SaveChanges();
-            return StatusCode(200, C_Solicitacao.ds_resolucao);
+            return StatusCode(200, p_solicitacao.ds_resolucao);
         }
         catch (Exception ex)
         {
-            c_Modelo.SaveChanges();
             return StatusCode(400, ex.Message);
+        }
+        finally
+        {
+            c_Modelo.SaveChanges();
         }
     }
 }

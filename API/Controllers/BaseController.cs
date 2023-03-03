@@ -9,43 +9,27 @@ public abstract class BaseController : Controller
         c_Modelo = p_modelo;
     }
 
-    public virtual async Task<IEntidade?> CM_DeserializaJsonObtemClasseERegistraSolicitacao(string p_json, Solicitacao p_solicitacao)
+    public virtual (IQueryable<IEntidade>, IEntidade) CM_DeserializaJsonObtemClasseERegistraSolicitacao(string? p_json, out Solicitacao p_solicitacao)
     {
+        p_solicitacao = new Solicitacao();
+
         try
         {
             if (string.IsNullOrWhiteSpace(p_json))
             {
-                ReadResult requestBodyInBytes = await Request.BodyReader.ReadAsync();
+                ReadResult requestBodyInBytes = Request.BodyReader.ReadAsync().Result;
                 Request.BodyReader.AdvanceTo(requestBodyInBytes.Buffer.Start, requestBodyInBytes.Buffer.End);
                 p_json = Encoding.UTF8.GetString(requestBodyInBytes.Buffer.FirstSpan);
             }
 
-            p_solicitacao = JsonSerializer.Deserialize<Solicitacao>(p_json) ?? throw new ArgumentNullException("Solicitação está vazia.");
+            p_solicitacao = JsonSerializer.Deserialize<Solicitacao>(p_json) ?? throw new SolicitacaoNulaException();
             p_solicitacao.ds_metodo = Request.Method;
             p_solicitacao.dt_inicio = DateTime.Now;
             c_Modelo.Solicitacoes.Add(p_solicitacao);
 
             var m_entidadeFactory = new EntidadeFactory();
-            IQueryable<IEntidade>? m_queryable = p_solicitacao.ds_entidade switch
-            {
-                nameof(Produto) => c_Modelo.Produtos.AsNoTracking(),
-                nameof(Setor) => c_Modelo.Setores.AsNoTracking(),
-                nameof(Etiqueta) => c_Modelo.Etiquetas.AsNoTracking(),
-                _ => null
-            };
-            if((m_queryable?.ToList().Count == 0 && p_solicitacao.ds_metodo != "POST" ) || m_queryable == null )
-                throw new KeyNotFoundException("Os dados na base não existem ou não foram encontrados.");
-
-            var m_entidade = m_entidadeFactory.CM_ObtemEntidade(p_solicitacao, m_queryable);
-            if (m_entidade == null)
-                throw new KeyNotFoundException("A entidade não foi encontrada ou não está implementada.");
-
-            if(string.IsNullOrWhiteSpace(p_solicitacao.ds_parametros))
-            {
-                var m_classeDaBase = c_Modelo.Find(m_entidade.GetType(), p_solicitacao.cd_codigo_interno);
-                return m_classeDaBase as IEntidade;
-            }
-            return m_entidade;
+            var m_queryable = m_entidadeFactory.CM_ObtemRegistrosDaEntidadeNaBase(c_Modelo, p_solicitacao);
+            return cm_ObtemResultadosDeAcordoComCadaMetodo(p_solicitacao, m_queryable);
         }
         catch (Exception ex)
         {
@@ -54,15 +38,37 @@ public abstract class BaseController : Controller
         }
     }
 
-    public virtual JsonDocument CM_ObtemJsonDaClasse<Classe>(Classe p_entidade)
-        => JsonSerializer.SerializeToDocument(p_entidade);
+    private (IQueryable<IEntidade>, IEntidade) cm_ObtemResultadosDeAcordoComCadaMetodo(Solicitacao p_solicitacao, IQueryable<IEntidade> p_fonteDeDados)
+    {
+        var m_entidadeFactory = new EntidadeFactory();
+
+        object? m_entidadeEncontrada;
+        var m_entidade = m_entidadeFactory.CM_RetornaEntidadeAPartirDaSolicitacao(p_solicitacao);
+        bool m_verificaSeEhMetotoGetOuDelete = p_solicitacao.ds_metodo == "GET" || p_solicitacao.ds_metodo == "DELETE";
+        if (m_verificaSeEhMetotoGetOuDelete)
+        {
+            if (p_solicitacao.cd_codigo_interno == 0)
+                return (p_fonteDeDados, m_entidade);
+            var m_entidadeDaFonte = p_fonteDeDados.FirstOrDefault(a => a.cd_codigo == p_solicitacao.cd_codigo_interno);
+            m_entidadeEncontrada = m_entidadeDaFonte == null ? new NenhumRegistroEncontradoException() : m_entidadeDaFonte;
+            var m_entidadeDepoisDoCast = m_entidadeEncontrada as IEntidade ?? throw new Exception("Impossível fazer o cast.");
+            return (new List<IEntidade> { m_entidadeDepoisDoCast }.AsQueryable(), m_entidadeDepoisDoCast);
+        }
+        else
+        {
+            if (p_solicitacao.ds_metodo == "PUT")
+                m_entidadeEncontrada = p_fonteDeDados.FirstOrDefault(a => a.cd_codigo == p_solicitacao.cd_codigo_interno) == null ? new NenhumRegistroEncontradoException() : null;
+            var m_retorno = m_entidadeFactory.CM_RetornaEntidadeDesserializadaAPartirDaSolicitacao(p_solicitacao);
+            return (new List<IEntidade> { m_retorno }.AsQueryable(), m_retorno);
+        }
+    }
 
     [HttpPost]
-    public abstract Task<IActionResult> CM_Salvar(string json);
+    public abstract IActionResult CM_Salvar(string json);
     [HttpGet]
-    public abstract Task<IActionResult> CM_Ler(string json);
+    public abstract IActionResult CM_Ler(string json);
     [HttpPut]
-    public abstract Task<IActionResult> CM_Editar(string json);
+    public abstract IActionResult CM_Editar(string json);
     [HttpDelete]
-    public abstract Task<IActionResult> CM_Deletar(string json);
+    public abstract IActionResult CM_Deletar(string json);
 }
