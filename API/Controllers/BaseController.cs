@@ -27,7 +27,7 @@ public abstract class BaseController : Controller
             p_solicitacao.dt_inicio = DateTime.Now;
             c_Modelo.Solicitacoes.Add(p_solicitacao);
 
-            var m_entidadeFactory = new EntidadeFactory();
+            var m_entidadeFactory = new EntidadeHelper();
             var m_queryable = m_entidadeFactory.CM_ObtemRegistrosDaEntidadeNaBase(c_Modelo, p_solicitacao);
             return cm_ObtemResultadosDeAcordoComCadaMetodo(p_solicitacao, m_queryable);
         }
@@ -40,7 +40,7 @@ public abstract class BaseController : Controller
 
     private (IQueryable<IEntidade>, IEntidade) cm_ObtemResultadosDeAcordoComCadaMetodo(Solicitacao p_solicitacao, IQueryable<IEntidade> p_fonteDeDados)
     {
-        var m_entidadeFactory = new EntidadeFactory();
+        var m_entidadeFactory = new EntidadeHelper();
 
         object? m_entidadeEncontrada;
         var m_entidade = m_entidadeFactory.CM_RetornaEntidadeAPartirDaSolicitacao(p_solicitacao);

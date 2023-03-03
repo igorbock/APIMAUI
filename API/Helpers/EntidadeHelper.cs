@@ -1,6 +1,6 @@
 ﻿namespace API.Helpers;
 
-public class EntidadeFactory
+public class EntidadeHelper
 {
     public IEntidade CM_RetornaEntidadeDesserializadaAPartirDaSolicitacao(Solicitacao? p_solicitacao)
     {
@@ -9,12 +9,15 @@ public class EntidadeFactory
 
         return p_solicitacao.ds_entidade switch
         {
-            nameof(Produto) => JsonSerializer.Deserialize<Produto>(p_solicitacao.ds_parametros),
-            nameof(Setor) => JsonSerializer.Deserialize<Setor>(p_solicitacao.ds_parametros),
-            nameof(Etiqueta) => JsonSerializer.Deserialize<Etiqueta>(p_solicitacao.ds_parametros),
+            nameof(Produto) => cm_DeserializaOuLancaException<Produto>(p_solicitacao.ds_parametros),
+            nameof(Setor) => cm_DeserializaOuLancaException<Setor>(p_solicitacao.ds_parametros),
+            nameof(Etiqueta) => cm_DeserializaOuLancaException<Etiqueta>(p_solicitacao.ds_parametros),
             _ => throw new EntidadeNaoEncontradaException(p_solicitacao.ds_entidade)
         };
     }
+
+    private Tipo cm_DeserializaOuLancaException<Tipo>(string p_json)
+        => JsonSerializer.Deserialize<Tipo>(p_json) ?? throw new Exception("Impossível desserializar.");
 
     public IEntidade CM_RetornaEntidadeAPartirDaSolicitacao(Solicitacao? p_solicitacao)
     {
