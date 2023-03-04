@@ -44,8 +44,7 @@ public abstract class BaseController : Controller
 
         object? m_entidadeEncontrada;
         var m_entidade = m_entidadeFactory.CM_RetornaEntidadeAPartirDaSolicitacao(p_solicitacao);
-        bool m_verificaSeEhMetotoGetOuDelete = p_solicitacao.ds_metodo == "GET" || p_solicitacao.ds_metodo == "DELETE";
-        if (m_verificaSeEhMetotoGetOuDelete)
+        if (p_solicitacao.CMX_VerificaSeMetodoEhGetOuDelete())
         {
             if (p_solicitacao.cd_codigo_interno == 0)
                 return (p_fonteDeDados, m_entidade);
@@ -58,8 +57,7 @@ public abstract class BaseController : Controller
         {
             if (p_solicitacao.ds_metodo == "PUT")
                 m_entidadeEncontrada = p_fonteDeDados.FirstOrDefault(a => a.cd_codigo == p_solicitacao.cd_codigo_interno) == null ? new NenhumRegistroEncontradoException() : null;
-            var m_retorno = m_entidadeFactory.CM_RetornaEntidadeDesserializadaAPartirDaSolicitacao(p_solicitacao);
-            return (new List<IEntidade> { m_retorno }.AsQueryable(), m_retorno);
+            return (new List<IEntidade> { m_entidade }.AsQueryable(), m_entidade);
         }
     }
 

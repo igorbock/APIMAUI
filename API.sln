@@ -9,6 +9,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EntityFramework", "..\Entit
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BibliotecaMAUI", "..\BibliotecaMAUI\BibliotecaMAUI\BibliotecaMAUI.csproj", "{FBB1CD62-4CE4-4C88-A12F-C1246C1B1BD4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "APITeste", "APITeste\APITeste.csproj", "{656B44BA-09FC-42EF-91C1-7EFBD2E7396D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{FBB1CD62-4CE4-4C88-A12F-C1246C1B1BD4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FBB1CD62-4CE4-4C88-A12F-C1246C1B1BD4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FBB1CD62-4CE4-4C88-A12F-C1246C1B1BD4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{656B44BA-09FC-42EF-91C1-7EFBD2E7396D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{656B44BA-09FC-42EF-91C1-7EFBD2E7396D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{656B44BA-09FC-42EF-91C1-7EFBD2E7396D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{656B44BA-09FC-42EF-91C1-7EFBD2E7396D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

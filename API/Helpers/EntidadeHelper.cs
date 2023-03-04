@@ -2,41 +2,31 @@
 
 public class EntidadeHelper
 {
-    public IEntidade CM_RetornaEntidadeDesserializadaAPartirDaSolicitacao(Solicitacao? p_solicitacao)
-    {
-        if (p_solicitacao == null)
-            throw new SolicitacaoNulaException();
-
-        return p_solicitacao.ds_entidade switch
-        {
-            nameof(Produto) => cm_DeserializaOuLancaException<Produto>(p_solicitacao.ds_parametros),
-            nameof(Setor) => cm_DeserializaOuLancaException<Setor>(p_solicitacao.ds_parametros),
-            nameof(Etiqueta) => cm_DeserializaOuLancaException<Etiqueta>(p_solicitacao.ds_parametros),
-            _ => throw new EntidadeNaoEncontradaException(p_solicitacao.ds_entidade)
-        };
-    }
-
-    private Tipo cm_DeserializaOuLancaException<Tipo>(string p_json)
-        => JsonSerializer.Deserialize<Tipo>(p_json) ?? throw new Exception("Impossível desserializar.");
-
     public IEntidade CM_RetornaEntidadeAPartirDaSolicitacao(Solicitacao? p_solicitacao)
     {
         if (p_solicitacao == null)
             throw new SolicitacaoNulaException();
 
-        return p_solicitacao.ds_entidade switch
+        if(p_solicitacao.CMX_VerificaSeMetodoEhGetOuDelete())
         {
-            nameof(Produto) => new Produto(),
-            nameof(Setor) => new Setor(),
-            nameof(Etiqueta) => new Etiqueta(),
-            _ => throw new EntidadeNaoEncontradaException(p_solicitacao.ds_entidade)
-        };
-    }
-
-    private IQueryable<Entidade> cm_DeserializaERetornaLista<Entidade>(string p_parametros)
-    {
-        var m_entidade = JsonSerializer.Deserialize<Entidade>(p_parametros) ?? throw new SerializationException("Não foi possível desserializar a entidade");
-        return new List<Entidade> { m_entidade }.AsQueryable();
+            return p_solicitacao.ds_entidade switch
+            {
+                nameof(Produto) => new Produto(),
+                nameof(Setor) => new Setor(),
+                nameof(Etiqueta) => new Etiqueta(),
+                _ => throw new EntidadeNaoEncontradaException(p_solicitacao.ds_entidade)
+            };
+        }
+        else
+        {
+            return p_solicitacao.ds_entidade switch
+            {
+                nameof(Produto) => JsonHelper.CM_DeserializaOuLancaException<Produto>(p_solicitacao.ds_parametros),
+                nameof(Setor) => JsonHelper.CM_DeserializaOuLancaException<Setor>(p_solicitacao.ds_parametros),
+                nameof(Etiqueta) => JsonHelper.CM_DeserializaOuLancaException<Etiqueta>(p_solicitacao.ds_parametros),
+                _ => throw new EntidadeNaoEncontradaException(p_solicitacao.ds_entidade)
+            };
+        }
     }
 
     public IQueryable<IEntidade> CM_ObtemRegistrosDaEntidadeNaBase(Modelo p_modelo, Solicitacao p_solicitacao)

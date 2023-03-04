@@ -29,4 +29,7 @@ public static class SolicitacaoExtension
         p_solicitacao.dt_fim = DateTime.Now;
         p_solicitacao.ds_resolucao = string.Format(p_resolucao, p_entidade, m_jsonFormatado);
     }
+
+    public static bool CMX_VerificaSeMetodoEhGetOuDelete(this Solicitacao p_solicitacao)
+        => p_solicitacao.ds_metodo == "GET" || p_solicitacao.ds_metodo == "DELETE" ? true : false;
 }
