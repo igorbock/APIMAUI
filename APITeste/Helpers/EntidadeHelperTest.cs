@@ -152,7 +152,7 @@ public class EntidadeHelperTest
         Assert.That(m_etiqueta, Is.Not.EqualTo(null));
         Assert.Multiple(() =>
         {
-            Assert.That(m_etiqueta?.cd_etiqueta, Is.EqualTo(2));
+            Assert.That(m_etiqueta?.cd_codigo, Is.EqualTo(7));
             Assert.That(m_etiqueta?.cd_produto, Is.EqualTo(20));
             Assert.That(m_etiqueta?.vl_m2, Is.EqualTo(3.00M));
             Assert.That(m_etiqueta?.vl_quantidade, Is.EqualTo(4));
@@ -224,8 +224,8 @@ public class EntidadeHelperTest
         Assert.That(C_Produtos[3].ds_nome, Is.EqualTo("Chapa Laminado"));
 
         var m_produto = from produto in m_queryableProduto
-                      where produto.cd_codigo == 1
-                      select produto as Produto;
+                        where produto.cd_codigo == 1
+                        select produto as Produto;
 
         Assert.That(m_queryableProduto.Count(), Is.EqualTo(4));
         Assert.That(m_produto.ToList().Last().ds_nome, Is.EqualTo("Chapa Temperada"));

@@ -13,11 +13,11 @@ public class MauiController : BaseController
     }
 
     [HttpPost]
-    public override IActionResult CM_Salvar(string? json)
+    public override ActionResult CM_Salvar(string? json)
     {
         try
         {
-            var m_retorno = CM_DeserializaJsonObtemClasseERegistraSolicitacao(json, out Solicitacao p_solicitacao);
+            var m_retorno = CM_DeserializaJsonObtemClasseERegistraSolicitacao(c_Modelo, json, out Solicitacao p_solicitacao);
             var m_entidade = m_retorno.Item2;
 #pragma warning disable CS8634
             c_Modelo.Add(m_entidade);
@@ -25,7 +25,7 @@ public class MauiController : BaseController
 
             p_solicitacao.CMX_EncerrarSolicitacao(MensagensSolicitacoes.C_CriarEntidade, p_solicitacao.ds_entidade, p_solicitacao.ds_parametros);
 
-            return StatusCode(200, p_solicitacao.ds_resolucao);
+            return new OkObjectResult(m_entidade);
         }
         catch (Exception ex)
         {
@@ -38,11 +38,11 @@ public class MauiController : BaseController
     }
 
     [HttpGet]
-    public override IActionResult CM_Ler(string? json)
+    public override ActionResult CM_Ler(string? json)
     {
         try
         {
-            var m_retorno = CM_DeserializaJsonObtemClasseERegistraSolicitacao(json, out Solicitacao p_solicitacao);
+            var m_retorno = CM_DeserializaJsonObtemClasseERegistraSolicitacao(c_Modelo, json, out Solicitacao p_solicitacao);
             var m_listaDaEntidade = m_retorno.Item1;
             var m_options = new JsonSerializerOptions
             {
@@ -54,7 +54,7 @@ public class MauiController : BaseController
 
             p_solicitacao.CMX_EncerrarSolicitacao(m_json.ToString());
 
-            return StatusCode(200, p_solicitacao.ds_resolucao);
+            return new OkObjectResult(m_listaDaEntidade);
         }
         catch (Exception ex)
         {
@@ -67,11 +67,11 @@ public class MauiController : BaseController
     }
 
     [HttpPut]
-    public override IActionResult CM_Editar(string? json)
+    public override ActionResult CM_Editar(string? json)
     {
         try
         {
-            var m_retorno = CM_DeserializaJsonObtemClasseERegistraSolicitacao(json, out Solicitacao p_solicitacao);
+            var m_retorno = CM_DeserializaJsonObtemClasseERegistraSolicitacao(c_Modelo, json, out Solicitacao p_solicitacao);
             var m_entidade = m_retorno.Item2;
 #pragma warning disable CS8634
             c_Modelo.Update(m_entidade);
@@ -79,7 +79,8 @@ public class MauiController : BaseController
 
             p_solicitacao.CMX_EncerrarSolicitacao(MensagensSolicitacoes.C_EditarEntidade, p_solicitacao.ds_entidade, p_solicitacao.ds_parametros);
 
-            return StatusCode(200, p_solicitacao.ds_resolucao);
+            return new OkObjectResult(m_entidade);
+            //return StatusCode(200, p_solicitacao.ds_resolucao);
         }
         catch (Exception ex)
         {
@@ -96,7 +97,7 @@ public class MauiController : BaseController
     {
         try
         {
-            var m_retorno = CM_DeserializaJsonObtemClasseERegistraSolicitacao(json, out Solicitacao p_solicitacao);
+            var m_retorno = CM_DeserializaJsonObtemClasseERegistraSolicitacao(c_Modelo, json, out Solicitacao p_solicitacao);
             var m_entidade = m_retorno.Item2;
 #pragma warning disable CS8634
             c_Modelo.Remove(m_entidade);

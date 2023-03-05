@@ -9,7 +9,8 @@ public abstract class BaseController : Controller
         c_Modelo = p_modelo;
     }
 
-    public virtual (IQueryable<IEntidade>, IEntidade) CM_DeserializaJsonObtemClasseERegistraSolicitacao(string? p_json, out Solicitacao p_solicitacao)
+    [NonAction]
+    public virtual (IQueryable<IEntidade>, IEntidade) CM_DeserializaJsonObtemClasseERegistraSolicitacao(Modelo p_modelo, string? p_json, out Solicitacao p_solicitacao)
     {
         p_solicitacao = new Solicitacao();
 
@@ -25,11 +26,11 @@ public abstract class BaseController : Controller
             p_solicitacao = JsonSerializer.Deserialize<Solicitacao>(p_json) ?? throw new SolicitacaoNulaException();
             p_solicitacao.ds_metodo = Request.Method;
             p_solicitacao.dt_inicio = DateTime.Now;
-            c_Modelo.Solicitacoes.Add(p_solicitacao);
+            p_modelo.Solicitacoes.Add(p_solicitacao);
 
             var m_entidadeFactory = new EntidadeHelper();
-            var m_queryable = m_entidadeFactory.CM_ObtemRegistrosDaEntidadeNaBase(c_Modelo, p_solicitacao);
-            return cm_ObtemResultadosDeAcordoComCadaMetodo(p_solicitacao, m_queryable);
+            var m_queryable = m_entidadeFactory.CM_ObtemRegistrosDaEntidadeNaBase(p_modelo, p_solicitacao);
+            return CM_ObtemResultadosDeAcordoComCadaMetodo(p_solicitacao, m_queryable);
         }
         catch (Exception ex)
         {
@@ -38,7 +39,8 @@ public abstract class BaseController : Controller
         }
     }
 
-    private (IQueryable<IEntidade>, IEntidade) cm_ObtemResultadosDeAcordoComCadaMetodo(Solicitacao p_solicitacao, IQueryable<IEntidade> p_fonteDeDados)
+    [NonAction]
+    public (IQueryable<IEntidade>, IEntidade) CM_ObtemResultadosDeAcordoComCadaMetodo(Solicitacao p_solicitacao, IQueryable<IEntidade> p_fonteDeDados)
     {
         var m_entidadeFactory = new EntidadeHelper();
 
@@ -62,11 +64,11 @@ public abstract class BaseController : Controller
     }
 
     [HttpPost]
-    public abstract IActionResult CM_Salvar(string json);
+    public abstract ActionResult CM_Salvar(string json);
     [HttpGet]
-    public abstract IActionResult CM_Ler(string json);
+    public abstract ActionResult CM_Ler(string json);
     [HttpPut]
-    public abstract IActionResult CM_Editar(string json);
+    public abstract ActionResult CM_Editar(string json);
     [HttpDelete]
     public abstract IActionResult CM_Deletar(string json);
 }

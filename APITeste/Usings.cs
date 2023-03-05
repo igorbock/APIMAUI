@@ -6,3 +6,7 @@ global using EntityFramework;
 global using APITeste.Services;
 global using Microsoft.EntityFrameworkCore;
 global using Moq;
+global using API.Controllers;
+global using Microsoft.AspNetCore.Http;
+global using Microsoft.AspNetCore.Mvc;
+global using System.Text.Json;
