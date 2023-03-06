@@ -3,6 +3,7 @@
 public abstract class BaseController : Controller
 {
     private readonly Modelo c_Modelo;
+    protected readonly JsonSerializerOptions? c_JsonSerializarOptions;
 
     public BaseController(Modelo p_modelo)
     {
@@ -23,7 +24,7 @@ public abstract class BaseController : Controller
                 p_json = Encoding.UTF8.GetString(requestBodyInBytes.Buffer.FirstSpan);
             }
 
-            p_solicitacao = JsonSerializer.Deserialize<Solicitacao>(p_json) ?? throw new SolicitacaoNulaException();
+            p_solicitacao = JsonSerializer.Deserialize<Solicitacao>(p_json) ?? throw new JsonException(MensagensExceptions.C_DesserializarSolicitacao);
             p_solicitacao.ds_metodo = Request.Method;
             p_solicitacao.dt_inicio = DateTime.Now;
             p_modelo.Solicitacoes.Add(p_solicitacao);
@@ -70,5 +71,5 @@ public abstract class BaseController : Controller
     [HttpPut]
     public abstract ActionResult CM_Editar(string json);
     [HttpDelete]
-    public abstract IActionResult CM_Deletar(string json);
+    public abstract ActionResult CM_Deletar(string json);
 }

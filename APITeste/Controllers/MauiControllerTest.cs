@@ -12,11 +12,13 @@ public class MauiControllerTest
     private Mock<DbSet<Solicitacao>> c_MockSolicitacoes { get; set; }
     private Mock<DbSet<Setor>> c_MockSetores { get; set; }
     private Mock<DbSet<Produto>> c_MockProdutos { get; set; }
+    private Mock<DbSet<Etiqueta>> c_MockEtiquetas { get; set; }
     private JsonSerializerOptions c_JsonSerializerOptions { get; set; }
     private OkObjectResult? c_OkObjectResult { get; set; }
     private ControllerContext c_ControllerContextGET { get; set; }
     private ControllerContext c_ControllerContextPOST { get; set; }
     private ControllerContext c_ControllerContextPUT { get; set; }
+    private ControllerContext c_ControllerContextDELETE { get; set; }
 
     [SetUp]
     public void SetUp()
@@ -35,6 +37,11 @@ public class MauiControllerTest
         m_requestPUT.Setup(x => x.Method).Returns("PUT");
         var m_httpContextPUT = Mock.Of<HttpContext>(a => a.Request == m_requestPUT.Object);
         c_ControllerContextPUT = new ControllerContext() { HttpContext = m_httpContextPUT };
+
+        var m_requestDELETE = new Mock<HttpRequest>();
+        m_requestDELETE.Setup(x => x.Method).Returns("DELETE");
+        var m_httpContextDELETE = Mock.Of<HttpContext>(a => a.Request == m_requestDELETE.Object);
+        c_ControllerContextDELETE = new ControllerContext() { HttpContext = m_httpContextDELETE };
 
         var m_fonteDadosSolicitacoes = new List<Solicitacao>().AsQueryable();
         c_MockSolicitacoes = new Mock<DbSet<Solicitacao>>();
@@ -71,16 +78,17 @@ public class MauiControllerTest
         {
             new Etiqueta { cd_codigo = 1, cd_produto = 23, vl_m2 = 314.00M, vl_quantidade = 114, cd_setor = 8 },
         }.AsQueryable();
-        c_MockProdutos = new Mock<DbSet<Produto>>();
-        c_MockProdutos.As<IQueryable<Produto>>().Setup(p => p.Provider).Returns(m_fonteDeDadosProdutos.Provider);
-        c_MockProdutos.As<IQueryable<Produto>>().Setup(p => p.Expression).Returns(m_fonteDeDadosProdutos.Expression);
-        c_MockProdutos.As<IQueryable<Produto>>().Setup(p => p.ElementType).Returns(m_fonteDeDadosProdutos.ElementType);
-        c_MockProdutos.As<IQueryable<Produto>>().Setup(p => p.GetEnumerator()).Returns(m_fonteDeDadosProdutos.GetEnumerator);
+        c_MockEtiquetas = new Mock<DbSet<Etiqueta>>();
+        c_MockEtiquetas.As<IQueryable<Etiqueta>>().Setup(p => p.Provider).Returns(m_fonteDeDadosEtiquetas.Provider);
+        c_MockEtiquetas.As<IQueryable<Etiqueta>>().Setup(p => p.Expression).Returns(m_fonteDeDadosEtiquetas.Expression);
+        c_MockEtiquetas.As<IQueryable<Etiqueta>>().Setup(p => p.ElementType).Returns(m_fonteDeDadosEtiquetas.ElementType);
+        c_MockEtiquetas.As<IQueryable<Etiqueta>>().Setup(p => p.GetEnumerator()).Returns(m_fonteDeDadosEtiquetas.GetEnumerator);
 
         c_ModeloMock = new Mock<Modelo>();
         c_ModeloMock.Setup(a => a.Solicitacoes).Returns(c_MockSolicitacoes.Object);
         c_ModeloMock.Setup(a => a.Setores).Returns(c_MockSetores.Object);
         c_ModeloMock.Setup(a => a.Produtos).Returns(c_MockProdutos.Object);
+        c_ModeloMock.Setup(a => a.Etiquetas).Returns(c_MockEtiquetas.Object);
         c_ModeloMock.Setup(a => a.SaveChanges()).Returns(null);
 
         c_JsonSerializerOptions = new JsonSerializerOptions
@@ -186,19 +194,19 @@ public class MauiControllerTest
     {
         c_Controller = new MauiController(c_ModeloMock.Object)
         {
-            ControllerContext = c_ControllerContextPUT
+            ControllerContext = c_ControllerContextDELETE
         };
 
         var m_json = @"{
         ""cd_codigo_interno"": 1,
-        ""ds_parametros"": ""{\""cd_codigo\"":1,\""ds_descricao\"":\""Chapa de vidro laminado\"",\""ds_nome\"":\""Chapa Laminada\"",\""vl_valor\"":284.00}"",
-        ""ds_entidade"": ""Produto""
+        ""ds_parametros"": null,
+        ""ds_entidade"": ""Etiqueta""
 }";
-        var m_esperado = "{\"cd_codigo\":1,\"ds_nome\":\"Chapa Laminada\",\"ds_descricao\":\"Chapa de vidro laminado\",\"vl_valor\":284.00}";
-        var m_response = c_Controller.CM_Editar(m_json);
+        var m_esperado = "{\"cd_codigo\":1,\"cd_produto\":23,\"vl_m2\":314.00,\"vl_quantidade\":114,\"cd_setor\":8}";
+        var m_response = c_Controller.CM_Deletar(m_json);
         c_OkObjectResult = m_response as OkObjectResult;
-        var m_produto = c_OkObjectResult?.Value as Produto;
-        var m_jsonResultado = JsonSerializer.Serialize(m_produto, c_JsonSerializerOptions);
+        var m_etiqueta = c_OkObjectResult?.Value as Etiqueta;
+        var m_jsonResultado = JsonSerializer.Serialize(m_etiqueta, c_JsonSerializerOptions);
         Assert.That(m_jsonResultado, Is.EqualTo(m_esperado));
         Assert.Pass();
     }

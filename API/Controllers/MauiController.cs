@@ -80,7 +80,6 @@ public class MauiController : BaseController
             p_solicitacao.CMX_EncerrarSolicitacao(MensagensSolicitacoes.C_EditarEntidade, p_solicitacao.ds_entidade, p_solicitacao.ds_parametros);
 
             return new OkObjectResult(m_entidade);
-            //return StatusCode(200, p_solicitacao.ds_resolucao);
         }
         catch (Exception ex)
         {
@@ -93,7 +92,7 @@ public class MauiController : BaseController
     }
 
     [HttpDelete]
-    public override IActionResult CM_Deletar(string? json)
+    public override ActionResult CM_Deletar(string? json)
     {
         try
         {
@@ -105,7 +104,7 @@ public class MauiController : BaseController
 
             p_solicitacao.CMX_EncerrarSolicitacao(string.Format(MensagensSolicitacoes.C_RemoverEntidade, p_solicitacao.ds_entidade));
 
-            return StatusCode(200, p_solicitacao.ds_resolucao);
+            return new OkObjectResult(m_entidade);
         }
         catch (Exception ex)
         {
